@@ -6,6 +6,8 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
+using Codeplex.Data;
+
 using HtmlAgilityPack;
 
 namespace ScrapingLibrary {
@@ -54,23 +56,7 @@ namespace ScrapingLibrary {
 		/// <param name="url">URL</param>
 		/// <returns>取得したHTMLDocument</returns>
 		public async Task<HtmlDocument> GetDocumentAsync(string url) {
-			var uri = new Uri(url);
-			var request = new HttpRequestMessage {
-				Method = HttpMethod.Get,
-				RequestUri = uri
-			};
-			this.SetHeaders(request);
-
-			var hrm = await this._hc.SendAsync(request);
-			string html;
-			if (hrm.Content.Headers.ContentEncoding.ToString() == "gzip") {
-				var st = await hrm.Content.ReadAsStreamAsync();
-				var gzip = new GZipStream(st, CompressionMode.Decompress);
-				var sr = new StreamReader(gzip);
-				html = await sr.ReadToEndAsync();
-			} else {
-				html = await hrm.Content.ReadAsStringAsync();
-			}
+			var html = await this.GetTextAsync(url);
 
 			var hd = new HtmlDocument();
 			hd.LoadHtml(html);
@@ -138,5 +124,52 @@ namespace ScrapingLibrary {
 			var hrm = await this._hc.SendAsync(request);
 			return await hrm.Content.ReadAsByteArrayAsync();
 		}
+
+		/// <summary>
+		/// 結果をテキスト形式で取得(GET)
+		/// </summary>
+		/// <param name="url">URL</param>
+		/// <returns>結果</returns>
+		public async Task<string> GetTextAsync(string url) {
+			return await this.GetTextAsync(new Uri(url));
+		}
+
+
+		/// <summary>
+		/// 結果をテキスト形式で取得(GET)
+		/// </summary>
+		/// <param name="uri">URI</param>
+		/// <returns>結果</returns>
+		public async Task<string> GetTextAsync(Uri uri) {
+			var request = new HttpRequestMessage {
+				Method = HttpMethod.Get,
+				RequestUri = uri
+			};
+			this.SetHeaders(request);
+
+			var hrm = await this._hc.SendAsync(request);
+			string text;
+			if (hrm.Content.Headers.ContentEncoding.ToString() == "gzip") {
+				var st = await hrm.Content.ReadAsStreamAsync();
+				var gzip = new GZipStream(st, CompressionMode.Decompress);
+				var sr = new StreamReader(gzip);
+				text = await sr.ReadToEndAsync();
+			} else {
+				text = await hrm.Content.ReadAsStringAsync();
+			}
+
+			return text;
+		}
+
+		/// <summary>
+		/// 結果をJson形式で取得(GET)
+		/// </summary>
+		/// <param name="url">URL</param>
+		/// <returns>結果</returns>
+		public async Task<dynamic> GetJsonAsync(string url) {
+			var json = await this.GetTextAsync(new Uri(url));
+			return DynamicJson.Parse(json);
+		}
+
 	}
 }
