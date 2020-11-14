@@ -112,5 +112,31 @@ namespace ScrapingLibrary {
 				request.Headers.Add(header.Key, header.Value);
 			}
 		}
+
+		/// <summary>
+		/// 結果をバイナリ形式で取得(GET)
+		/// </summary>
+		/// <param name="url">URL</param>
+		/// <returns>結果</returns>
+		public async Task<byte[]> GetBinaryAsync(string url) {
+			return await this.GetBinaryAsync(new Uri(url));
+		}
+
+
+		/// <summary>
+		/// 結果をバイナリ形式で取得(GET)
+		/// </summary>
+		/// <param name="uri">URI</param>
+		/// <returns>結果</returns>
+		public async Task<byte[]> GetBinaryAsync(Uri uri) {
+			var request = new HttpRequestMessage {
+				Method = HttpMethod.Get,
+				RequestUri = uri
+			};
+			this.SetHeaders(request);
+
+			var hrm = await this._hc.SendAsync(request);
+			return await hrm.Content.ReadAsByteArrayAsync();
+		}
 	}
 }
