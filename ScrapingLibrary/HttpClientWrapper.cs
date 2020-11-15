@@ -55,12 +55,12 @@ namespace ScrapingLibrary {
 		/// </summary>
 		/// <param name="url">URL</param>
 		/// <returns>取得したHTMLDocument</returns>
-		public async Task<HtmlDocument> GetDocumentAsync(string url) {
-			var html = await this.GetTextAsync(url);
+		public async Task<ResponseObject<HtmlDocument>> GetDocumentAsync(string url) {
+			var res = await this.GetTextAsync(url);
 
 			var hd = new HtmlDocument();
-			hd.LoadHtml(html);
-			return hd;
+			hd.LoadHtml(res.Result);
+			return new(hd, res);
 		}
 
 		/// <summary>
@@ -68,7 +68,7 @@ namespace ScrapingLibrary {
 		/// </summary>
 		/// <param name="url">URL</param>
 		/// <param name="content">要求本文</param>
-		public async Task<HtmlDocument> PostAsync(string url, HttpContent content) {
+		public async Task<ResponseObject<HtmlDocument>> PostAsync(string url, HttpContent content) {
 			var uri = new Uri(url);
 			var request = new HttpRequestMessage {
 				Method = HttpMethod.Post,
@@ -90,7 +90,7 @@ namespace ScrapingLibrary {
 
 			var hd = new HtmlDocument();
 			hd.LoadHtml(html);
-			return hd;
+			return new(hd, hrm.StatusCode);
 		}
 
 		private void SetHeaders(HttpRequestMessage request) {
@@ -104,7 +104,7 @@ namespace ScrapingLibrary {
 		/// </summary>
 		/// <param name="url">URL</param>
 		/// <returns>結果</returns>
-		public async Task<byte[]> GetBinaryAsync(string url) {
+		public async Task<ResponseObject<byte[]>> GetBinaryAsync(string url) {
 			return await this.GetBinaryAsync(new Uri(url));
 		}
 
@@ -114,7 +114,7 @@ namespace ScrapingLibrary {
 		/// </summary>
 		/// <param name="uri">URI</param>
 		/// <returns>結果</returns>
-		public async Task<byte[]> GetBinaryAsync(Uri uri) {
+		public async Task<ResponseObject<byte[]>> GetBinaryAsync(Uri uri) {
 			var request = new HttpRequestMessage {
 				Method = HttpMethod.Get,
 				RequestUri = uri
@@ -122,7 +122,7 @@ namespace ScrapingLibrary {
 			this.SetHeaders(request);
 
 			var hrm = await this._hc.SendAsync(request);
-			return await hrm.Content.ReadAsByteArrayAsync();
+			return new(await hrm.Content.ReadAsByteArrayAsync(), hrm.StatusCode);
 		}
 
 		/// <summary>
@@ -130,7 +130,7 @@ namespace ScrapingLibrary {
 		/// </summary>
 		/// <param name="url">URL</param>
 		/// <returns>結果</returns>
-		public async Task<string> GetTextAsync(string url) {
+		public async Task<ResponseObject<string>> GetTextAsync(string url) {
 			return await this.GetTextAsync(new Uri(url));
 		}
 
@@ -140,7 +140,7 @@ namespace ScrapingLibrary {
 		/// </summary>
 		/// <param name="uri">URI</param>
 		/// <returns>結果</returns>
-		public async Task<string> GetTextAsync(Uri uri) {
+		public async Task<ResponseObject<string>> GetTextAsync(Uri uri) {
 			var request = new HttpRequestMessage {
 				Method = HttpMethod.Get,
 				RequestUri = uri
@@ -158,7 +158,7 @@ namespace ScrapingLibrary {
 				text = await hrm.Content.ReadAsStringAsync();
 			}
 
-			return text;
+			return new(text, hrm.StatusCode);
 		}
 
 		/// <summary>
@@ -166,9 +166,9 @@ namespace ScrapingLibrary {
 		/// </summary>
 		/// <param name="url">URL</param>
 		/// <returns>結果</returns>
-		public async Task<dynamic> GetJsonAsync(string url) {
-			var json = await this.GetTextAsync(new Uri(url));
-			return DynamicJson.Parse(json);
+		public async Task<ResponseObject<dynamic>> GetJsonAsync(string url) {
+			var res = await this.GetTextAsync(new Uri(url));
+			return new(DynamicJson.Parse(res.Result), res);
 		}
 
 	}
