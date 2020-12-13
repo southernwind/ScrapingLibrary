@@ -47,20 +47,20 @@ namespace ScrapingLibrary {
 		}
 
 		/// <summary>
-		/// 引数で渡されたURLのHTMLDocumentを取得する(GET)
+		/// 引数で渡されたURLのHTTPレスポンスを取得する(GET)
 		/// </summary>
 		/// <param name="url">URL</param>
 		/// <returns>取得したHTMLDocument</returns>
-		public async Task<HttpResponseMessage> GetDocumentAsync(string url) {
-			return await this.GetDocumentAsync(new Uri(url));
+		public async Task<HttpResponseMessage> GetAsync(string url) {
+			return await this.GetAsync(new Uri(url));
 		}
 
 		/// <summary>
-		/// 引数で渡されたURLのHTMLDocumentを取得する(GET)
+		/// 引数で渡されたURLのHTTPレスポンスを取得する(GET)
 		/// </summary>
 		/// <param name="uri">URI</param>
 		/// <returns>取得したHTMLDocument</returns>
-		public async Task<HttpResponseMessage> GetDocumentAsync(Uri uri) {
+		public async Task<HttpResponseMessage> GetAsync(Uri uri) {
 			var request = new HttpRequestMessage {
 				Method = HttpMethod.Get,
 				RequestUri = uri
