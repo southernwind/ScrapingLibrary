@@ -20,6 +20,42 @@ namespace ScrapingLibrary {
 		/// </summary>
 		/// <param name="hrm">HttpResponseMessage</param>
 		/// <returns>結果</returns>
+		public static async Task<byte[]> ToBinaryAsync(this Task<HttpResponseMessage> hrm) {
+			return await (await hrm).ToBinaryAsync();
+		}
+
+		/// <summary>
+		/// HttpResponseMessageをテキスト形式に変換
+		/// </summary>
+		/// <param name="hrm">HttpResponseMessage</param>
+		/// <returns>結果</returns>
+		public static async Task<string> ToTextAsync(this Task<HttpResponseMessage> hrm) {
+			return await (await hrm).ToTextAsync();
+		}
+
+		/// <summary>
+		/// HttpResponseMessageをHtmlDocument形式に変換
+		/// </summary>
+		/// <param name="hrm">HttpResponseMessage</param>
+		/// <returns>結果</returns>
+		public static async Task<HtmlDocument> ToHtmlDocumentAsync(this Task<HttpResponseMessage> hrm) {
+			return await (await hrm).ToHtmlDocumentAsync();
+		}
+
+		/// <summary>
+		/// 結果をJson形式で取得(GET)
+		/// </summary>
+		/// <param name="hrm">HttpResponseMessage</param>
+		/// <returns>結果</returns>
+		public static async Task<dynamic> ToJsonAsync(this Task<HttpResponseMessage> hrm) {
+			return await (await hrm).ToJsonAsync();
+		}
+
+		/// <summary>
+		/// HttpResponseMessageをバイナリ形式に変換
+		/// </summary>
+		/// <param name="hrm">HttpResponseMessage</param>
+		/// <returns>結果</returns>
 		public static async Task<byte[]> ToBinaryAsync(this HttpResponseMessage hrm) {
 			return await hrm.Content.ReadAsByteArrayAsync();
 		}
