@@ -67,7 +67,7 @@ namespace ScrapingLibrary {
 		/// <returns>結果</returns>
 		public static async Task<string> ToTextAsync(this HttpResponseMessage hrm) {
 			var charset = hrm.Content.Headers.ContentType?.CharSet;
-			if (charset == "windows-31j") {
+			if (charset?.ToLower() == "windows-31j") {
 				charset = "shift_jis";
 			}
 
