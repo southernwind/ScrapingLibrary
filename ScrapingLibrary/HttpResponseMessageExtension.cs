@@ -1,10 +1,16 @@
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
 using Codeplex.Data;
+
+using CsvHelper;
+using CsvHelper.Configuration;
 
 using HtmlAgilityPack;
 
@@ -43,12 +49,22 @@ namespace ScrapingLibrary {
 		}
 
 		/// <summary>
-		/// 結果をJson形式で取得(GET)
+		/// 結果をJson形式で取得
 		/// </summary>
 		/// <param name="hrm">HttpResponseMessage</param>
 		/// <returns>結果</returns>
 		public static async Task<dynamic> ToJsonAsync(this Task<HttpResponseMessage> hrm) {
 			return await (await hrm).ToJsonAsync();
+		}
+
+		/// <summary>
+		/// 結果をCSVレコード形式で取得
+		/// </summary>
+		/// <param name="hrm">HttpResponseMessage</param>
+		/// <param name="csvConfiguration">CsvConfiguration</param>
+		/// <returns>結果</returns>
+		public static async Task<List<T>> ToCsvRecordAsync<T>(this Task<HttpResponseMessage> hrm, CsvConfiguration? csvConfiguration = null) {
+			return await (await hrm).ToCsvRecordAsync<T>(csvConfiguration);
 		}
 
 		/// <summary>
@@ -99,13 +115,31 @@ namespace ScrapingLibrary {
 		}
 
 		/// <summary>
-		/// 結果をJson形式で取得(GET)
+		/// 結果をJson形式で取得
 		/// </summary>
 		/// <param name="hrm">HttpResponseMessage</param>
 		/// <returns>結果</returns>
 		public static async Task<dynamic> ToJsonAsync(this HttpResponseMessage hrm) {
 			var text = await hrm.ToTextAsync();
 			return DynamicJson.Parse(text);
+		}
+
+		/// <summary>
+		/// 結果をCSVレコード形式で取得
+		/// </summary>
+		/// <param name="hrm">HttpResponseMessage</param>
+		/// <param name="csvConfiguration">csvConfiguration</param>
+		/// <returns>結果</returns>
+		public static async Task<List<T>> ToCsvRecordAsync<T>(this HttpResponseMessage hrm, CsvConfiguration? csvConfiguration = null) {
+			csvConfiguration ??= new(CultureInfo.CurrentCulture);
+			var text = await hrm.ToTextAsync();
+			var encoding = Encoding.UTF8;
+			await using var memoryStream = new MemoryStream(encoding.GetBytes(text));
+			using var streamReader = new StreamReader(memoryStream, encoding);
+			using var csvReader = new CsvReader(streamReader, csvConfiguration);
+			
+			return csvReader.GetRecords<T>().ToList();
+
 		}
 	}
 }
