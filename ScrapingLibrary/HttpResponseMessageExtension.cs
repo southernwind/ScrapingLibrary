@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Codeplex.Data;
@@ -133,11 +134,19 @@ namespace ScrapingLibrary {
 		public static async Task<List<T>> ToCsvRecordAsync<T>(this HttpResponseMessage hrm, CsvConfiguration? csvConfiguration = null) {
 			csvConfiguration ??= new(CultureInfo.CurrentCulture);
 			var text = await hrm.ToTextAsync();
+			while (true) {
+				var before = text;
+				text = Regex.Replace(text, "^null,|,null$", ",,", RegexOptions.Multiline).Replace(",null,", ",,");
+				if (before == text) {
+					break;
+				}
+			}
+
 			var encoding = Encoding.UTF8;
 			await using var memoryStream = new MemoryStream(encoding.GetBytes(text));
 			using var streamReader = new StreamReader(memoryStream, encoding);
 			using var csvReader = new CsvReader(streamReader, csvConfiguration);
-			
+
 			return csvReader.GetRecords<T>().ToList();
 
 		}
