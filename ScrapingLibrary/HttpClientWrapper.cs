@@ -23,23 +23,14 @@ namespace ScrapingLibrary {
 			get;
 		}
 
-		public HttpClientWrapper() {
-			this.CookieContainer = new CookieContainer();
-			this._hc = new HttpClient(new HttpClientHandler {
-				CookieContainer = this.CookieContainer
-			});
-			this.Headers.Add("Accept-Encoding", "gzip, deflate, br");
-			this.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363");
-			this.Headers.Add("Accept-Language", "ja");
-			this.Headers.Add("Connection", "Keep-Alive");
-			this.Headers.Add("Accept", "text/html, application/xhtml+xml, application/xml; q=0.9, */*; q=0.8");
+		public HttpClientWrapper():this(new HttpClientHandler()) {
 		}
 
 		public HttpClientWrapper(HttpClientHandler handler) {
 			this.CookieContainer = new CookieContainer();
 			handler.CookieContainer = this.CookieContainer;
 			this._hc = new HttpClient(handler);
-			this.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+			this.Headers.Add("Accept-Encoding", "gzip");
 			this.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363");
 			this.Headers.Add("Accept-Language", "ja");
 			this.Headers.Add("Connection", "Keep-Alive");
