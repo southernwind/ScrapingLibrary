@@ -61,6 +61,17 @@ namespace ScrapingLibrary {
 			return await this._hc.SendAsync(request);
 		}
 
+
+		/// <summary>
+		/// リクエストを行う。
+		/// </summary>
+		/// <param name="uri">URI</param>
+		/// <returns>取得したHTMLDocument</returns>
+		public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
+		{
+			return await this._hc.SendAsync(request);
+		}
+
 		/// <summary>
 		/// Postする。
 		/// </summary>
@@ -76,10 +87,9 @@ namespace ScrapingLibrary {
 			this.SetHeaders(request);
 
 			return await this._hc.SendAsync(request);
-
 		}
 
-		private void SetHeaders(HttpRequestMessage request) {
+		public void SetHeaders(HttpRequestMessage request) {
 			foreach (var header in this.Headers) {
 				request.Headers.Add(header.Key, header.Value);
 			}

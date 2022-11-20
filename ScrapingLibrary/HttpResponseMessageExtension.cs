@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -74,8 +77,31 @@ namespace ScrapingLibrary {
 		/// <param name="hrm">HttpResponseMessage</param>
 		/// <returns>結果</returns>
 		public static async Task<byte[]> ToBinaryAsync(this HttpResponseMessage hrm) {
-			return await hrm.Content.ReadAsByteArrayAsync();
-		}
+			
+
+            if (hrm.Content.Headers.ContentEncoding.ToString() != "gzip")
+            {
+                return await hrm.Content.ReadAsByteArrayAsync();
+            }
+
+			var st = await hrm.Content.ReadAsStreamAsync();
+            var gzip = new GZipStream(st, CompressionMode.Decompress);
+			using MemoryStream memory = new MemoryStream();
+            
+            var count = 0;
+            const int size = 4096;
+            var buffer = new byte[size];
+            do
+			{
+				count = gzip.Read(buffer, 0, size);
+                if (count > 0)
+                {
+					memory.Write(buffer, 0, count);
+                }
+            }
+            while (count > 0);
+            return memory.ToArray();
+        }
 
 		/// <summary>
 		/// HttpResponseMessageをテキスト形式に変換
