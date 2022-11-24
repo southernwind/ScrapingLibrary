@@ -23,7 +23,7 @@ namespace ScrapingLibrary {
 			get;
 		}
 
-		public HttpClientWrapper():this(new HttpClientHandler()) {
+		public HttpClientWrapper():this(new HttpClientHandler() { UseCookies = true }) {
 		}
 
 		public HttpClientWrapper(HttpClientHandler handler) {
