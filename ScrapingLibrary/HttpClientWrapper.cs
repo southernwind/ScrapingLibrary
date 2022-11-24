@@ -14,7 +14,7 @@ namespace ScrapingLibrary {
 		/// <summary>
 		/// ヘッダ
 		/// </summary>
-		public readonly Dictionary<string, string> Headers = new();
+		private readonly Dictionary<string, string> DefaultHeaders = new();
 
 		/// <summary>
 		/// Cookie
@@ -30,11 +30,11 @@ namespace ScrapingLibrary {
 			this.CookieContainer = new CookieContainer();
 			handler.CookieContainer = this.CookieContainer;
 			this._hc = new HttpClient(handler);
-			this.Headers.Add("Accept-Encoding", "gzip");
-			this.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363");
-			this.Headers.Add("Accept-Language", "ja");
-			this.Headers.Add("Connection", "Keep-Alive");
-			this.Headers.Add("Accept", "text/html, application/xhtml+xml, application/xml; q=0.9, */*; q=0.8");
+			this.DefaultHeaders.Add("Accept-Encoding", "gzip");
+			this.DefaultHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363");
+			this.DefaultHeaders.Add("Accept-Language", "ja");
+			this.DefaultHeaders.Add("Connection", "Keep-Alive");
+			this.DefaultHeaders.Add("Accept", "text/html, application/xhtml+xml, application/xml; q=0.9, */*; q=0.8");
 		}
 
 		/// <summary>
@@ -42,8 +42,8 @@ namespace ScrapingLibrary {
 		/// </summary>
 		/// <param name="url">URL</param>
 		/// <returns>取得したHTMLDocument</returns>
-		public async Task<HttpResponseMessage> GetAsync(string url) {
-			return await this.GetAsync(new Uri(url));
+		public async Task<HttpResponseMessage> GetAsync(string url, Dictionary<string, string> headers=null) {
+			return await this.GetAsync(new Uri(url),headers);
 		}
 
 		/// <summary>
@@ -51,12 +51,12 @@ namespace ScrapingLibrary {
 		/// </summary>
 		/// <param name="uri">URI</param>
 		/// <returns>取得したHTMLDocument</returns>
-		public async Task<HttpResponseMessage> GetAsync(Uri uri) {
+		public async Task<HttpResponseMessage> GetAsync(Uri uri, Dictionary<string, string> headers = null) {
 			var request = new HttpRequestMessage {
 				Method = HttpMethod.Get,
 				RequestUri = uri
 			};
-			this.SetHeaders(request);
+			this.SetHeaders(request,headers);
 
 			return await this._hc.SendAsync(request);
 		}
@@ -77,20 +77,20 @@ namespace ScrapingLibrary {
 		/// </summary>
 		/// <param name="url">URL</param>
 		/// <param name="content">要求本文</param>
-		public async Task<HttpResponseMessage> PostAsync(string url, HttpContent content) {
+		public async Task<HttpResponseMessage> PostAsync(string url, HttpContent content, Dictionary<string, string> headers = null) {
 			var uri = new Uri(url);
 			var request = new HttpRequestMessage {
 				Method = HttpMethod.Post,
 				RequestUri = uri,
 				Content = content
 			};
-			this.SetHeaders(request);
+			this.SetHeaders(request,headers);
 
 			return await this._hc.SendAsync(request);
 		}
 
-		public void SetHeaders(HttpRequestMessage request) {
-			foreach (var header in this.Headers) {
+		public void SetHeaders(HttpRequestMessage request, Dictionary<string, string> headers = null) {
+			foreach (var header in headers ?? this.DefaultHeaders) {
 				request.Headers.Add(header.Key, header.Value);
 			}
 		}
