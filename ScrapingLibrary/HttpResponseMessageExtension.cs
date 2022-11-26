@@ -71,21 +71,29 @@ namespace ScrapingLibrary {
 			return await (await hrm).ToCsvRecordAsync<T>(csvConfiguration);
 		}
 
-		/// <summary>
-		/// HttpResponseMessageをバイナリ形式に変換
-		/// </summary>
-		/// <param name="hrm">HttpResponseMessage</param>
-		/// <returns>結果</returns>
-		public static async Task<byte[]> ToBinaryAsync(this HttpResponseMessage hrm) {
-			
-
+        /// <summary>
+        /// HttpResponseMessageをStream形式に変換
+        /// </summary>
+        /// <param name="hrm">HttpResponseMessage</param>
+        /// <returns>結果</returns>
+        public static async Task<Stream> ToStreamAsync(this HttpResponseMessage hrm)
+        {
+            var st = await hrm.Content.ReadAsStreamAsync();
             if (hrm.Content.Headers.ContentEncoding.ToString() != "gzip")
             {
-                return await hrm.Content.ReadAsByteArrayAsync();
+				return st;
             }
 
-			var st = await hrm.Content.ReadAsStreamAsync();
-            var gzip = new GZipStream(st, CompressionMode.Decompress);
+            return new GZipStream(st, CompressionMode.Decompress);
+        }
+
+        /// <summary>
+        /// HttpResponseMessageをバイナリ形式に変換
+        /// </summary>
+        /// <param name="hrm">HttpResponseMessage</param>
+        /// <returns>結果</returns>
+        public static async Task<byte[]> ToBinaryAsync(this HttpResponseMessage hrm) {
+			using var stream = await hrm.ToStreamAsync();
 			using MemoryStream memory = new MemoryStream();
             
             var count = 0;
@@ -93,7 +101,7 @@ namespace ScrapingLibrary {
             var buffer = new byte[size];
             do
 			{
-				count = gzip.Read(buffer, 0, size);
+				count = stream.Read(buffer, 0, size);
                 if (count > 0)
                 {
 					memory.Write(buffer, 0, count);
