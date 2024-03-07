@@ -129,7 +129,7 @@ namespace ScrapingLibrary {
 				return await hrm.Content.ReadAsStringAsync();
 			}
 
-			var encoding = charset == null ? Encoding.UTF8 : Encoding.GetEncoding(charset);
+			var encoding = charset == null || charset.ToLower() == "utf8" ? Encoding.UTF8 : Encoding.GetEncoding(charset);
 			var st = await hrm.Content.ReadAsStreamAsync();
 			var gzip = new GZipStream(st, CompressionMode.Decompress);
 			var sr = new StreamReader(gzip, encoding);
