@@ -136,11 +136,6 @@ namespace ScrapingLibrary
             {
                 request.Headers.Add(header.Key, header.Value);
             }
-
-            var cookieString = this.CookieContainer.GetCookieHeader(request.RequestUri!);
-            if (!string.IsNullOrEmpty(cookieString)) {
-                request.Headers.Add("Cookie", cookieString);
-            }
         }
     }
 }
