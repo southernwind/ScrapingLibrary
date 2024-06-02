@@ -94,7 +94,7 @@ namespace ScrapingLibrary {
         /// <returns>結果</returns>
         public static async Task<byte[]> ToBinaryAsync(this HttpResponseMessage hrm) {
 			using var stream = await hrm.ToStreamAsync();
-			using MemoryStream memory = new MemoryStream();
+			using var memory = new MemoryStream();
             
             var count = 0;
             const int size = 4096;
